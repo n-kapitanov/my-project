@@ -118,7 +118,7 @@
   }
 
   /* ---------- състояние ---------- */
-  var data, nodeById = {}, branchById = {}, adj = {};
+  var data, nodeById = {}, branchById = {}, adj = {}, flowOut = {}, flowIn = {}, flowSet = {};
   var nodeEls = {}, edgeEls = [], hubEls = {};
   var state = { view: 'map', hiddenTypes: {}, hiddenStatuses: {}, query: '', hover: null, selected: null };
   var T = { k: 1, x: 0, y: 0 }, fitT = null, bbox = null;
@@ -164,6 +164,13 @@
         if (!nodeById[t]) { warn('Връзка от ' + n.id + ' към несъществуващ ' + t); return; }
         adj[n.id][t] = true; adj[t][n.id] = true;
       });
+    });
+    flowOut = {}; flowIn = {}; flowSet = {};
+    data.nodes.forEach(function (n) { flowOut[n.id] = []; flowIn[n.id] = []; });
+    (data.flows || []).forEach(function (f) {
+      if (!nodeById[f[0]] || !nodeById[f[1]]) { warn('Поток към несъществуващ възел: ' + f.join(' → ')); return; }
+      flowOut[f[0]].push(f[1]); flowIn[f[1]].push(f[0]); flowSet[f[0] + '>' + f[1]] = 1;
+      adj[f[0]][f[1]] = true; adj[f[1]][f[0]] = true;
     });
     function chk(list, where) {
       (list || []).forEach(function (it) { if (!nodeById[it.node]) warn(where + ': несъществуващ възел ' + it.node); });
@@ -223,15 +230,18 @@
     if (n.schedule) {
       var p2 = h('p'); p2.appendChild(h('span', 'k', 'Кога: ')); p2.appendChild(document.createTextNode(n.schedule)); c.appendChild(p2);
     }
-    var rel = relatedOf(n.id);
-    if (rel.length) {
-      var p3 = h('p'); p3.appendChild(h('span', 'k', 'Свързано с:')); c.appendChild(p3);
+    function list(title, arr) {
+      if (!arr.length) return;
+      var p3 = h('p'); p3.appendChild(h('span', 'k', title)); c.appendChild(p3);
       var ul = h('ul');
-      rel.forEach(function (r) {
+      arr.forEach(function (r) {
         var li = h('li'); li.appendChild(shapeSvg(r.type, r.status, 16)); li.appendChild(document.createTextNode(r.label)); ul.appendChild(li);
       });
       c.appendChild(ul);
     }
+    var ins = flowIn[n.id].map(function (k) { return nodeById[k]; }), outs = flowOut[n.id].map(function (k) { return nodeById[k]; });
+    list('← Получава от:', ins); list('→ Подава към:', outs);
+    list(ins.length || outs.length ? 'Свързано още с:' : 'Свързано с:', relatedOf(n.id).filter(function (r) { return ins.indexOf(r) < 0 && outs.indexOf(r) < 0; }));
     return c;
   }
   function isTouchMode() { return window.matchMedia('(hover: none)').matches; }
@@ -335,18 +345,38 @@
     vp.appendChild(gEdges); vp.appendChild(gHubs); vp.appendChild(gNodes);
     nodeEls = {}; edgeEls = []; hubEls = {};
 
-    // връзки между елементи (двете посоки, без дубликати)
+    // стрелки на маркерите
+    var defs = svg('defs');
+    ['', '-hot'].forEach(function (s) {
+      var m = svg('marker', { id: 'arrow' + s, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 9, markerHeight: 9, markerUnits: 'userSpaceOnUse', orient: 'auto' });
+      m.appendChild(svg('path', { d: 'M0,1 L10,5 L0,9 Z', fill: s ? '#250E62' : '#8F88AE' }));
+      defs.appendChild(m);
+    });
+    mapEl.insertBefore(defs, vp);
+
+    // връзки между елементи (двете посоки, без дубликати); насочените имат стрелка
     var seen = {};
     data.nodes.forEach(function (n) {
       Object.keys(adj[n.id]).forEach(function (t) {
         var key = n.id < t ? n.id + '|' + t : t + '|' + n.id;
         if (seen[key]) return; seen[key] = 1;
-        var a = L.pos[n.id], b = L.pos[t], m = nodeById[t];
-        var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        var cx = mx * 0.62, cy = my * 0.62;
-        var p = svg('path', { d: 'M' + a.x + ',' + a.y + ' Q' + cx + ',' + cy + ' ' + b.x + ',' + b.y, class: 'edge link' + (m.branch === n.branch ? ' same' : '') });
+        var from = n.id, to = t, directed = false;
+        if (flowSet[n.id + '>' + t]) directed = true; else if (flowSet[t + '>' + n.id]) { from = t; to = n.id; directed = true; }
+        var a = L.pos[from], b = L.pos[to], m = nodeById[t], same = m.branch === n.branch;
+        var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, cx, cy;
+        if (same) { var dx = b.x - a.x, dy = b.y - a.y; cx = mx - dy * 0.12; cy = my + dx * 0.12; }
+        else { cx = mx * 0.62; cy = my * 0.62; }
+        var x1 = a.x, y1 = a.y, x2 = b.x, y2 = b.y;
+        if (directed) {
+          var d1 = Math.hypot(cx - a.x, cy - a.y) || 1, d2 = Math.hypot(b.x - cx, b.y - cy) || 1;
+          x1 = a.x + (cx - a.x) / d1 * 19; y1 = a.y + (cy - a.y) / d1 * 19;
+          x2 = b.x - (b.x - cx) / d2 * 21; y2 = b.y - (b.y - cy) / d2 * 21;
+        }
+        var p = svg('path', { d: 'M' + x1 + ',' + y1 + ' Q' + cx + ',' + cy + ' ' + x2 + ',' + y2,
+          class: 'edge link' + (directed ? ' flow' : (same ? ' same' : '')) });
+        if (directed) p.setAttribute('marker-end', 'url(#arrow)');
         gEdges.appendChild(p);
-        edgeEls.push({ el: p, a: n.id, b: t, kind: 'link' });
+        edgeEls.push({ el: p, a: from, b: to, kind: 'link', directed: directed });
       });
     });
     // клон → елемент
@@ -491,6 +521,7 @@
         else { dim = !(hubB ? e.branch === hubB : (e.a === id)); }
       }
       e.el.classList.toggle('hot', hot);
+      if (e.directed) e.el.setAttribute('marker-end', hot ? 'url(#arrow-hot)' : 'url(#arrow)');
       e.el.classList.toggle('dim', dim);
     });
   }
@@ -548,6 +579,13 @@
       b.addEventListener('click', function () { state.hiddenStatuses[s] = !state.hiddenStatuses[s]; applyFilters(); });
       lg.appendChild(b);
     });
+    var fl = h('button', 'chip flow-toggle'); fl.type = 'button'; fl.setAttribute('aria-pressed', 'true');
+    var ic = svg('svg', { viewBox: '0 0 24 24', width: 24, height: 24, 'aria-hidden': 'true' });
+    ic.appendChild(svg('path', { d: 'M3,12 H17', stroke: '#8F88AE', 'stroke-width': 2, fill: 'none' }));
+    ic.appendChild(svg('path', { d: 'M15,7 L22,12 L15,17 Z', fill: '#8F88AE' }));
+    fl.appendChild(ic); fl.appendChild(document.createTextNode('Стрелки на потока'));
+    fl.addEventListener('click', function () { var on = fl.getAttribute('aria-pressed') === 'true'; fl.setAttribute('aria-pressed', String(!on)); mapEl.classList.toggle('noflow', on); });
+    lg.appendChild(h('h2', null, 'Поток')); lg.appendChild(fl);
     var only = h('button', 'only-ideas', 'Само идеи'); only.type = 'button'; only.id = 'onlyIdeas'; only.setAttribute('aria-pressed', 'false');
     only.addEventListener('click', function () {
       var on = only.getAttribute('aria-pressed') === 'true';
