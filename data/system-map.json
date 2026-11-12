@@ -1,0 +1,118 @@
+{
+  "updated": "2026-11-12",
+  "projectId": "01a18999-3938-706b-805e-0736ddc37885",
+  "root": "ЕРА Вива – Система",
+  "branches": [
+    { "id": "intake", "name": "Внос на имоти" },
+    { "id": "analysis", "name": "Анализ на имоти" },
+    { "id": "listings", "name": "Обяви за сайта на ЕРА" },
+    { "id": "content", "name": "Съдържание" },
+    { "id": "publishing", "name": "Публикуване и канали" },
+    { "id": "brand", "name": "Визуална идентичност" },
+    { "id": "clients", "name": "Клиенти и публична страница" },
+    { "id": "control", "name": "Управление на системата" },
+    { "id": "personal", "name": "Лично и странично" }
+  ],
+  "nodes": [
+    { "id": "skill-import-link", "branch": "intake", "type": "skill", "status": "works", "label": "/vnos-ot-link", "name": "Умение /vnos-ot-link", "description": "Внася имот по линк от Facebook или era.bg: проверка за дубликат, папка в „Имоти“, документ „Данни“ и снимки през Make.", "trigger": "линк към имот", "result": "папка ### – Тип – Район – Ориентир, „Данни“, снимки", "links": ["folder-properties", "doc-data", "make-photos"] },
+    { "id": "skill-drive-extract", "branch": "intake", "type": "skill", "status": "works", "label": "/izvlichane-ot-drive", "name": "Умение /izvlichane-ot-drive", "description": "Анализира снимките на имот в Drive: проверими данни, дефекти, план за снимки и въпроси към собственика. Само чете; записва в „Данни“ след изрично „да“.", "trigger": "номер на имот ###", "result": "проверими данни, дефекти, въпроси към собственика", "links": ["folder-properties", "folder-inbox", "doc-data"] },
+    { "id": "folder-properties", "branch": "intake", "type": "folder", "status": "works", "label": "Имоти", "name": "Папка „Имоти“", "description": "По една папка на имот (### – Тип – Район – Ориентир) с „Данни“, снимките и подпапка „Визии“ за каруселите и видеата.", "links": ["doc-data"] },
+    { "id": "folder-inbox", "branch": "intake", "type": "folder", "status": "works", "label": "Входящи", "name": "Папка „Входящи“", "description": "Снимки от компютъра през Google Drive за компютър: по подпапка на имот, по желание с бележки от огледа.", "links": ["folder-properties"] },
+    { "id": "doc-data", "branch": "intake", "type": "data", "status": "works", "label": "„Данни“ на имот", "name": "Документ „Данни“", "description": "Пълният вътрешен запис за имота. Всеки факт е с източник и етикет [ВИДИМО], [ВЕРОЯТНО] или [ЗА ПРОВЕРКА]; най-горе е блокът „ЦЕНА И ОБЯВА“.", "links": [] },
+    { "id": "make-photos", "branch": "intake", "type": "automation", "status": "works", "label": "Снимки от линк към Drive", "name": "Make: „ЕРА – Снимки от линк към Drive“", "description": "Общ сценарий: приема папка и списък линкове и качва снимките в Drive. Ползва се за снимки от Facebook и era.bg и за каруселите от Canva.", "trigger": "извикване от умение", "result": "файлове в папката на имота", "links": ["canva-template"] },
+    { "id": "task-import-era", "branch": "intake", "type": "task", "status": "works", "label": "Внасяне от era.bg", "name": "Насрочена задача „Внасяне на имоти от era.bg – по 2 на ден“", "description": "Предлага по 2 имота от списъка за внасяне; след „да“ ги внася и ги качва на публичната страница. Иска буден Mac.", "schedule": "вторник–събота, 13:47", "links": ["skill-import-link", "page-properties"] },
+    { "id": "task-price-check", "branch": "intake", "type": "task", "status": "works", "label": "Проверка на цените", "name": "Насрочена задача „Проверка на цените ЕРА Вива“", "description": "Чете цените и статуса на обявите в era.bg, обновява „Данни“ и публичната страница. Отпаднала обява чака решение на Ник. Иска буден Mac.", "schedule": "понеделник и четвъртък, 11:13", "links": ["doc-data", "page-properties"] },
+
+    { "id": "skill-legal", "branch": "analysis", "type": "skill", "status": "works", "label": "/pravno-geodezicheski-analiz", "name": "Умение /pravno-geodezicheski-analiz", "description": "Чете документите на имота, проверява комплекта по етап и записва правния и геодезическия анализ.", "trigger": "документи на имот", "result": "документ „Анализ“", "links": ["folder-research"] },
+    { "id": "skill-investment", "branch": "analysis", "type": "skill", "status": "works", "label": "/investitsionen-analiz", "name": "Умение /investitsionen-analiz", "description": "За парцел или стара сграда: строителен потенциал, сценарии, калкулация, печалба и максимална цена.", "trigger": "бизнес имот в „Проучване на имоти“", "result": "„Инвестиционен анализ“ и таблица „Калкулация“", "links": ["folder-research", "idea-business-segment"] },
+    { "id": "folder-research", "branch": "analysis", "type": "folder", "status": "works", "label": "Проучване на имоти", "name": "Папка „Проучване на имоти“", "description": "По папка на имот за правен, геодезически и инвестиционен анализ. Не е за реклама: „Имоти“ е за маркетинг, тук е за анализ.", "links": [] },
+
+    { "id": "project-offers", "branch": "listings", "type": "project", "status": "works", "label": "Оферти за сайт на ЕРА", "name": "Проект „Оферти за сайт на ЕРА“", "description": "Оперативната работа по конкретни имоти, по един чат на имот или задача. Оттам идват бележките „За системата: …“ към този проект.", "links": ["rule-listing", "project-system"] },
+    { "id": "rule-listing", "branch": "listings", "type": "rule", "status": "works", "label": "Стандарт за обявите", "name": "Стандарт за обявите на сайта на ЕРА", "description": "Заглавие, три абзаца (имот, сграда, район) и финален блок с реда за CreditERA. Без хайп; AI не измисля данни, липсващото е [ЗА ПРОВЕРКА].", "links": ["doc-data"] },
+    { "id": "idea-listing-checklist", "branch": "listings", "type": "rule", "status": "idea", "label": "13 стъпки и чеклист", "name": "Пълният 13-стъпков алгоритъм и чеклист за обявите", "description": "Отворена задача: пълният текст не е запазен в системата. Да се възстанови и прикачи към стандарта.", "links": ["rule-listing"] },
+
+    { "id": "skill-social", "branch": "content", "type": "skill", "status": "works", "label": "/socialni-mreji", "name": "Умение /socialni-mreji", "description": "За новите имоти: 3 поста, сценарий за ролка, карусел от шаблона в Canva и редове „Чернова“. Архивира публикуваното и записва реакциите.", "trigger": "„Социални мрежи“ или „Нови имоти“", "result": "постове и карусел в „Контент план“", "links": ["folder-properties", "sheet-content-plan", "canva-template", "buffer"] },
+    { "id": "skill-info-posts", "branch": "content", "type": "skill", "status": "works", "label": "/informativni-postove", "name": "Умение /informativni-postove", "description": "Пише информативен пост с карусел от 5–7 слайда по следващата тема от „Теми“: 70% за продавачи, 30% за купувачи.", "trigger": "„Информативен пост“ или ИНФО-##", "result": "пост и карусел, ред „Чернова“", "links": ["sheet-topics", "sheet-content-plan", "canva-template", "folder-info"] },
+    { "id": "skill-video", "branch": "content", "type": "skill", "status": "testing", "label": "/video-imot", "name": "Умение /video-imot", "description": "Вертикално видео 1080×1920 (около 22 s) от реалния видеоматериал на имота, с музика и надписи; чернова за вторник. Още се изпитва.", "trigger": "/video-imot ###", "result": "видео във „Визии“ и ред „Чернова“", "links": ["folder-properties", "folder-music", "sheet-content-plan", "idea-tiktok"] },
+    { "id": "sheet-content-plan", "branch": "content", "type": "data", "status": "works", "label": "Контент план", "name": "Таблица „Контент план“", "description": "Всички постове. Статуси: Чернова → Одобрено → Насрочено → Архив. От тук Make взима одобреното за Buffer.", "links": ["make-buffer"] },
+    { "id": "sheet-topics", "branch": "content", "type": "data", "status": "works", "label": "Теми", "name": "Таблица „Теми“", "description": "Банка с теми за информативните постове и раздел „Казуси“ за постовете за риск.", "links": [] },
+    { "id": "folder-info", "branch": "content", "type": "folder", "status": "works", "label": "Информативни", "name": "Папка „Информативни“", "description": "Визиите на информативните постове (ИНФО-##_karusel_01.png…).", "links": [] },
+    { "id": "folder-music", "branch": "content", "type": "folder", "status": "works", "label": "Музика", "name": "Папка „Музика“", "description": "Инструментални парчета за видеата за имоти.", "links": [] },
+    { "id": "rule-weekly-schedule", "branch": "content", "type": "rule", "status": "works", "label": "Седмичен график", "name": "Седмичен график на постовете", "description": "Пн и чт 18:00 – имоти със снимки; вт 18:00 – видео; ср 17:00 – „Съветите на Ник“; сб 18:00 – „Седмицата“; пт и нд – без постове.", "links": ["rubric-tips", "rubric-week", "skill-video", "sheet-content-plan"] },
+    { "id": "rubric-tips", "branch": "content", "type": "rubric", "status": "works", "label": "Съветите на Ник", "name": "Рубрика „Съветите на Ник“", "description": "Всяка сряда в 17:00, през седмица: информативен пост (ИНФО-##) и пост за риск (РИСК-##).", "schedule": "сряда, 17:00", "links": ["skill-info-posts", "rubric-risk"] },
+    { "id": "rubric-risk", "branch": "content", "type": "rubric", "status": "testing", "label": "Казус на седмицата", "name": "Рубрика „Казус на седмицата“ (РИСК-##)", "description": "Анонимни казуси от позицията на брокер, не на юрист. Чака своите страници в шаблона в Canva и запас от 4–6 готови казуса.", "links": ["sheet-topics", "canva-template"] },
+    { "id": "rubric-week", "branch": "content", "type": "rubric", "status": "testing", "label": "Седмицата", "name": "Рубрика „Седмицата“", "description": "Събота 18:00: обобщение на седмицата, по един слайд на имот и един за поста от сряда. Чака своите страници в шаблона в Canva.", "schedule": "събота, 18:00", "links": ["sheet-content-plan", "canva-template"] },
+    { "id": "task-wed-draft", "branch": "content", "type": "task", "status": "works", "label": "Чернова за сряда", "name": "Насрочена задача „Информативен пост – чернова за сряда“", "description": "В седмиците за информативен пост готви чернова по /informativni-postove. Записва само след „запиши“ от Ник; нищо не публикува.", "schedule": "понеделник, 10:47", "links": ["skill-info-posts", "rubric-tips"] },
+    { "id": "task-tue-wed-check", "branch": "content", "type": "task", "status": "works", "label": "Проверка вт и ср", "name": "Насрочена задача „Проверка на постовете за вторник и сряда“", "description": "Само чете „Контент план“. Предупреждава, ако вторник (видео) или сряда („Съветите на Ник“) нямат одобрен пост, и предлага замяна или теми.", "schedule": "неделя, 16:37", "links": ["sheet-content-plan", "rule-weekly-schedule"] },
+
+    { "id": "make-buffer", "branch": "publishing", "type": "automation", "status": "works", "label": "Карусел към Buffer", "name": "Make: „ЕРА – Карусел към Buffer (FB + IG)“", "description": "Взима редовете „Одобрено“: с дата ги насрочва точно, без дата ги слага в опашката. Видеото излиза като Reel. Записва резултата в таблицата.", "schedule": "всеки ден, 09:00", "links": ["buffer", "sheet-content-plan"] },
+    { "id": "buffer", "branch": "publishing", "type": "tool", "status": "works", "label": "Buffer", "name": "Buffer", "description": "Безплатен план: до 3 канала и до 10 поста в опашка на канал. Слотове пн и чт 18:00; останалите дни се насрочват с точен час. Claude само чете.", "links": ["channel-fb", "channel-ig"] },
+    { "id": "channel-fb", "branch": "publishing", "type": "channel", "status": "works", "label": "Facebook „ERA by NK“", "name": "Facebook страница „ERA by NK – недвижими имоти“", "description": "Основен канал за постовете за имоти и рубриките.", "links": [] },
+    { "id": "channel-ig", "branch": "publishing", "type": "channel", "status": "works", "label": "Instagram nick_kapitanov", "name": "Instagram nick_kapitanov", "description": "Същите постове като във Facebook; до 5 хаштага.", "links": [] },
+    { "id": "channel-viber", "branch": "publishing", "type": "channel", "status": "paused", "label": "Viber канал", "name": "Viber канал „Продавай с Ник и ЕРА Вива“", "description": "Още не е започнат; отложен, защото ресурсът на Claude не стига. Сценариите в Make (публикуване в 18:05, настройка, обратна връзка) са създадени, но са изключени.", "links": ["sheet-content-plan", "idea-rename"] },
+    { "id": "idea-tiktok", "branch": "publishing", "type": "channel", "status": "paused", "label": "TikTok @nick_era_", "name": "TikTok @nick_era_", "description": "Отложен трети канал. Първо видеото; занапред снимките се правят вертикално.", "links": ["buffer"] },
+    { "id": "idea-linkedin", "branch": "publishing", "type": "channel", "status": "idea", "label": "LinkedIn", "name": "LinkedIn", "description": "Обмислен като трети канал в Buffer; решението е отложено.", "links": ["buffer"] },
+    { "id": "idea-messengers", "branch": "publishing", "type": "channel", "status": "idea", "label": "WhatsApp, Messenger…", "name": "Месинджъри: WhatsApp, Messenger, Telegram, Signal", "description": "Разширяване на каналите след Viber.", "links": ["channel-viber"] },
+    { "id": "idea-portals", "branch": "publishing", "type": "channel", "status": "idea", "label": "Alo.bg, OLX", "name": "Портали Alo.bg и OLX", "description": "Следваща цел за разширяване на каналите за имоти.", "links": [] },
+    { "id": "idea-fb-profile", "branch": "publishing", "type": "channel", "status": "idea", "label": "FB профил и група", "name": "Личният профил и групата във Facebook", "description": "Разпространение и към личния профил в професионален режим; за групата решението още не е взето.", "links": ["channel-fb"] },
+    { "id": "idea-rename", "branch": "publishing", "type": "rule", "status": "idea", "label": "Нови имена без ЕРА", "name": "Нови имена на Facebook страницата и Viber канала", "description": "Имена без бранда ЕРА, които показват дейността и подканват към действие. Още се решава.", "links": ["channel-fb"] },
+
+    { "id": "canva-template", "branch": "brand", "type": "data", "status": "works", "label": "Бранд шаблон в Canva", "name": "Бранд шаблон „ERA by NK – шаблони (редактируем)“", "description": "14 страници: инфо корица, съвети 01–05, покана, корица на имот, снимки. Каруселите се правят само от него; промяна в дизайна = промяна в шаблона.", "links": ["rule-visual", "canva-kit"] },
+    { "id": "rule-visual", "branch": "brand", "type": "rule", "status": "works", "label": "Визия „ERA by NK“", "name": "Визуална идентичност „ERA by NK“ (посока А)", "description": "Тъмносин фон, двуцветна лента червено и бордо, бял текст, Montserrat, 1080×1350. Червеното никога не е текст.", "links": [] },
+    { "id": "canva-kit", "branch": "brand", "type": "tool", "status": "works", "label": "Canva Pro", "name": "Canva Pro и бранд комплект", "description": "Платен план; бранд комплектът е попълнен с цветовете, шрифта и логото.", "links": [] },
+    { "id": "idea-brand-assets", "branch": "brand", "type": "data", "status": "idea", "label": "Лого и снимка в HD", "name": "Официален векторен лого на ЕРА и снимка на Ник във висока резолюция", "description": "Отворена задача: сега логото е от seeklogo, а снимката е 886 px.", "links": ["canva-template"] },
+
+    { "id": "page-properties", "branch": "clients", "type": "page", "status": "works", "label": "Купи имот с Ник", "name": "Публична страница „Купи имот с Ник“", "description": "n-kapitanov.github.io/properties: покана за обаждане, не каталог. Без линкове към era.bg; контактът е само Ник (обаждане и Viber).", "links": ["idea-business-segment"] },
+    { "id": "task-dictations", "branch": "clients", "type": "task", "status": "works", "label": "Обработка на диктовките", "name": "Насрочена задача „Вечерна обработка на диктовките“", "description": "Обработва бележките от формата „Диктовка след разговор“, обновява клиенти, запитвания и контакти и прави списъка за прозвъняване за следващия ден.", "schedule": "понеделник–петък, 20:17", "links": ["sheet-contacts", "form-dictation"] },
+    { "id": "form-dictation", "branch": "clients", "type": "data", "status": "works", "label": "Диктовка след разговор", "name": "Google Form „Диктовка след разговор“", "description": "Бърза бележка след разговор; влиза в лист „Входящи“ на „Дневник на контактите“.", "links": ["sheet-contacts"] },
+    { "id": "sheet-contacts", "branch": "clients", "type": "data", "status": "works", "label": "Дневник на контактите", "name": "Таблица „Дневник на контактите“", "description": "Клиенти, запитвания по етапи на фунията, контакти, предложения, имоти и списък за прозвъняване.", "links": ["tool-estate-assistant"] },
+    { "id": "tool-estate-assistant", "branch": "clients", "type": "tool", "status": "works", "label": "Estate Assistant", "name": "Estate Assistant", "description": "Основният инструмент за клиенти от няколко месеца. Claude не пише в него.", "links": [] },
+    { "id": "tool-trello", "branch": "clients", "type": "tool", "status": "paused", "label": "Trello (архив)", "name": "Trello „ERA Nick Real Estate“", "description": "По-стар инструмент: активните карти за 2026 са отпред, по-старите в „Архив 2025“.", "links": ["tool-estate-assistant"] },
+    { "id": "idea-business-segment", "branch": "clients", "type": "page", "status": "idea", "label": "Страница за инвеститори", "name": "Представяне за бизнес инвеститори", "description": "Втори сегмент: подбрани имоти, по-рядко, цени без ДДС. Засега страницата е само за лично ползване.", "links": [] },
+
+    { "id": "doc-rules", "branch": "control", "type": "rule", "status": "works", "label": "Правила", "name": "Документ „Правила“", "description": "Единственото място с правилата за работа. Уменията и проектите сочат към него, не го преписват.", "links": ["project-system"] },
+    { "id": "project-system", "branch": "control", "type": "project", "status": "works", "label": "ЕРА Вива – Система", "name": "Проект „ЕРА Вива – Система“", "description": "Тук се изграждат и променят уменията, Make, Buffer, Drive и таблиците. Линковете от тази карта отварят чат в него.", "links": [] },
+    { "id": "page-process-map", "branch": "control", "type": "page", "status": "paused", "label": "Старата карта", "name": "Старата текстова карта „Процеси на ЕРА Вива“ (страница и PDF)", "description": "Заменя се от тази карта. Не се обновява повече, след като седмичният преглед премине към тази карта.", "links": ["task-weekly-review", "idea-control-center"] },
+    { "id": "task-weekly-review", "branch": "control", "type": "task", "status": "works", "label": "Седмичен преглед", "name": "Насрочена задача „ЕРА – седмичен преглед на системата“", "description": "Сверява „Правила“ и картата на процесите с уменията, Make, таблиците, задачите и Drive и ги обновява.", "schedule": "понеделник, 11:41", "links": ["doc-rules"] },
+    { "id": "task-resources", "branch": "control", "type": "task", "status": "works", "label": "Ресурси – отчет", "name": "Насрочена задача „Ресурси на Системата – седмичен отчет“", "description": "Само чете: следи операциите в Make и опашката в Buffer и предупреждава преди лимит.", "schedule": "петък, 14:47", "links": ["make-buffer", "buffer"] },
+    { "id": "folder-backup", "branch": "control", "type": "folder", "status": "works", "label": "Backup Claude", "name": "Папка „Backup Claude“", "description": "Резервни копия на уменията и инструкциите на проектите.", "links": [] },
+    { "id": "idea-control-center", "branch": "control", "type": "page", "status": "testing", "label": "Управленски център", "name": "Управленски център на системата", "description": "Една страница с достъп до всяка част на системата. Тази карта е първата стъпка към него.", "links": ["project-system"] },
+
+    { "id": "skill-occasions", "branch": "personal", "type": "skill", "status": "works", "label": "/proverka-za-povodi", "name": "Умение /proverka-za-povodi", "description": "Проверява кои лични поводи (рожден и имен ден, годишнини, професионални празници, празници на близки) идват и дава списък за поздрав.", "trigger": "таблица „Поводи“", "result": "списък с поводи за поздрав", "links": ["idea-greeting"] },
+    { "id": "idea-greeting", "branch": "personal", "type": "skill", "status": "idea", "label": "Поздравителен адрес", "name": "Умение „Поздравителен адрес“", "description": "Записана задача: умение, което пише поздравителни адреси.", "links": [] },
+    { "id": "idea-gifts-page", "branch": "personal", "type": "page", "status": "idea", "label": "Бизнес подаръци", "name": "Страница за бизнес подаръци", "description": "Втората, странична дейност: отделна страница до тази за имотите.", "links": ["page-properties"] }
+  ],
+  "daily": [
+    { "time": "09:00", "text": "Make подава одобреното към Buffer", "node": "make-buffer" }
+  ],
+  "week": [
+    { "day": "Понеделник", "items": [
+      { "time": "10:47", "text": "Чернова за сряда", "node": "task-wed-draft" },
+      { "time": "11:13", "text": "Проверка на цените", "node": "task-price-check" },
+      { "time": "11:41", "text": "Седмичен преглед", "node": "task-weekly-review" },
+      { "time": "18:00", "text": "Пост за имот (опашка)", "node": "skill-social" },
+      { "time": "20:17", "text": "Обработка на диктовките", "node": "task-dictations" } ] },
+    { "day": "Вторник", "items": [
+      { "time": "13:47", "text": "Внасяне от era.bg", "node": "task-import-era" },
+      { "time": "18:00", "text": "Видео за имот", "node": "skill-video" },
+      { "time": "20:17", "text": "Обработка на диктовките", "node": "task-dictations" } ] },
+    { "day": "Сряда", "items": [
+      { "time": "13:47", "text": "Внасяне от era.bg", "node": "task-import-era" },
+      { "time": "17:00", "text": "Съветите на Ник", "node": "rubric-tips" },
+      { "time": "20:17", "text": "Обработка на диктовките", "node": "task-dictations" } ] },
+    { "day": "Четвъртък", "items": [
+      { "time": "11:13", "text": "Проверка на цените", "node": "task-price-check" },
+      { "time": "13:47", "text": "Внасяне от era.bg", "node": "task-import-era" },
+      { "time": "18:00", "text": "Пост за имот (най-силният)", "node": "skill-social" },
+      { "time": "20:17", "text": "Обработка на диктовките", "node": "task-dictations" } ] },
+    { "day": "Петък", "noPost": true, "items": [
+      { "time": "13:47", "text": "Внасяне от era.bg", "node": "task-import-era" },
+      { "time": "14:47", "text": "Ресурси – отчет", "node": "task-resources" },
+      { "time": "20:17", "text": "Обработка на диктовките", "node": "task-dictations" } ] },
+    { "day": "Събота", "items": [
+      { "time": "13:47", "text": "Внасяне от era.bg", "node": "task-import-era" },
+      { "time": "18:00", "text": "Седмицата", "node": "rubric-week" } ] },
+    { "day": "Неделя", "noPost": true, "items": [
+      { "time": "16:37", "text": "Проверка за вторник и сряда", "node": "task-tue-wed-check" } ] }
+  ]
+}

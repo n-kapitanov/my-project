@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<title>ЕРА Вива – Система</title>
+<link rel="stylesheet" href="assets/map.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-title">
+    <h1>ЕРА Вива – Система</h1>
+    <div class="top-date" id="stamp">Състояние към …</div>
+  </div>
+  <div class="counts" id="counts" aria-label="Брой по статус"></div>
+  <input class="search" id="search" type="search" placeholder="Търси по име и описание" aria-label="Търсене">
+  <div class="views" role="tablist" aria-label="Изглед">
+    <button role="tab" id="tab-map" aria-selected="true" data-view="map">Карта</button>
+    <button role="tab" id="tab-week" aria-selected="false" data-view="week">Седмица</button>
+  </div>
+  <button class="filters-toggle" id="filtersToggle" aria-expanded="false" aria-controls="legend">Филтри</button>
+</header>
+
+<div class="body">
+  <aside class="legend" id="legend" aria-label="Легенда и филтри"></aside>
+  <main class="stage" id="stage">
+    <svg id="map" role="img" aria-label="Карта на системата" xmlns="http://www.w3.org/2000/svg"></svg>
+    <button class="fit" id="fit">Покажи всичко</button>
+    <section class="week" id="week" hidden></section>
+    <div class="fallback" id="fallback" hidden></div>
+  </main>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+<div class="panel" id="panel" hidden></div>
+<noscript><p style="padding:16px">За картата е нужен JavaScript.</p></noscript>
+<script src="assets/map.js"></script>
+</body>
+</html>
