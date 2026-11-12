@@ -340,6 +340,8 @@
     mapEl.innerHTML = '';
     vp = svg('g', { id: 'vp' });
     mapEl.appendChild(vp);
+    mapEl.classList.add('noflow');
+    var sw = $('flowSwitch'); if (sw) sw.setAttribute('aria-checked', 'false');
     var L = layout();
     var gEdges = svg('g'), gHubs = svg('g'), gNodes = svg('g');
     vp.appendChild(gEdges); vp.appendChild(gHubs); vp.appendChild(gNodes);
@@ -579,13 +581,6 @@
       b.addEventListener('click', function () { state.hiddenStatuses[s] = !state.hiddenStatuses[s]; applyFilters(); });
       lg.appendChild(b);
     });
-    var fl = h('button', 'chip flow-toggle'); fl.type = 'button'; fl.setAttribute('aria-pressed', 'true');
-    var ic = svg('svg', { viewBox: '0 0 24 24', width: 24, height: 24, 'aria-hidden': 'true' });
-    ic.appendChild(svg('path', { d: 'M3,12 H17', stroke: '#8F88AE', 'stroke-width': 2, fill: 'none' }));
-    ic.appendChild(svg('path', { d: 'M15,7 L22,12 L15,17 Z', fill: '#8F88AE' }));
-    fl.appendChild(ic); fl.appendChild(document.createTextNode('Стрелки на потока'));
-    fl.addEventListener('click', function () { var on = fl.getAttribute('aria-pressed') === 'true'; fl.setAttribute('aria-pressed', String(!on)); mapEl.classList.toggle('noflow', on); });
-    lg.appendChild(h('h2', null, 'Поток')); lg.appendChild(fl);
     var only = h('button', 'only-ideas', 'Само идеи'); only.type = 'button'; only.id = 'onlyIdeas'; only.setAttribute('aria-pressed', 'false');
     only.addEventListener('click', function () {
       var on = only.getAttribute('aria-pressed') === 'true';
@@ -639,6 +634,7 @@
     state.view = v;
     $('map').style.display = v === 'map' ? '' : 'none';
     $('fit').hidden = v !== 'map';
+    $('flowSwitch').hidden = v !== 'map';
     $('week').hidden = v !== 'week';
     $('tab-map').setAttribute('aria-selected', String(v === 'map'));
     $('tab-week').setAttribute('aria-selected', String(v === 'week'));
@@ -653,6 +649,10 @@
     $('search').addEventListener('input', function (e) { state.query = e.target.value.trim().toLowerCase(); applyFilters(); });
     $('filtersToggle').addEventListener('click', function () {
       var l = $('legend'), o = l.classList.toggle('open'); this.setAttribute('aria-expanded', String(o));
+    });
+    $('flowSwitch').addEventListener('click', function () {
+      var on = this.getAttribute('aria-checked') !== 'true';
+      this.setAttribute('aria-checked', String(on)); mapEl.classList.toggle('noflow', !on);
     });
     bindPanZoom();
   }
